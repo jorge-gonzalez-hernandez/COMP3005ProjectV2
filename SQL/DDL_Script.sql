@@ -1,0 +1,117 @@
+DROP TABLE Admin_Staff CASCADE;
+DROP TABLE Equipment CASCADE;
+DROP TABLE Time_Slot CASCADE;
+DROP TABLE Room CASCADE;
+DROP TABLE Fitness_Class CASCADE;
+DROP TABLE Member CASCADE;
+DROP TABLE Registered CASCADE;
+DROP TABLE Fitness_Goals CASCADE;
+DROP TABLE Health_Metrics CASCADE;
+DROP TABLE Bills CASCADE;
+DROP TABLE Trainer CASCADE;
+DROP TABLE Member_Trainer_Session CASCADE;
+
+
+CREATE TABLE Admin_Staff (
+	EmployeeID SERIAL PRIMARY KEY,
+	PassWrd VARCHAR(20) NOT NULL
+);
+
+CREATE TABLE Equipment (
+	EquipmentID SERIAL PRIMARY KEY,
+	RecMaintenanceSch NUMERIC(3) NOT NULL,
+	PrevMaintenance DATE NOT NULL,
+	PrevEmployee INT,
+	FOREIGN KEY(PrevEmployee)
+		REFERENCES Admin_Staff (EmployeeID)
+		ON DELETE SET NULL
+		ON UPDATE CASCADE
+);
+
+CREATE TABLE Time_Slot (
+	TimeSlotID SERIAL PRIMARY KEY,
+	TimeSlotDay VARCHAR(3),
+	StartHr NUMERIC(2) check (StartHr >= 8 and StartHr < 17)
+);
+
+CREATE TABLE Room (
+	RoomID INT NOT NULL,
+	IsBooked Boolean NOT NULL,
+	TimeSlotID INT NOT NULL,
+	PRIMARY KEY (RoomID, TimeSlotID),
+	FOREIGN KEY (TimeSlotID) REFERENCES Time_Slot
+);
+
+CREATE TABLE Fitness_Class (
+	ClassID SERIAL PRIMARY KEY,
+	RoomID INT NOT NULL,
+	TimeSlotID INT NOT NULL,
+	ClassName VARCHAR(20),
+	FOREIGN KEY (RoomID, TimeSlotID)
+		REFERENCES Room (RoomID, TimeSlotID)
+		ON DELETE SET NULL
+		ON UPDATE CASCADE
+);
+
+
+
+CREATE TABLE Member (
+	MemberID SERIAL PRIMARY KEY,
+	Name VARCHAR(20) NOT NULL,
+	SkillLevel NUMERIC(2) NOT NULL
+);
+
+CREATE TABLE Registered (
+	ClassID INT,
+	MemberID INT,
+	PRIMARY KEY (ClassID, MemberID),
+	FOREIGN KEY (ClassID) REFERENCES Fitness_Class ON DELETE CASCADE,
+	FOREIGN KEY (MemberID) REFERENCES Member
+);
+
+CREATE TABLE Fitness_Goals (
+	FitnessGoalID SERIAL PRIMARY KEY,
+	MemberID INT NOT NULL,
+	Name VARCHAR(100) NOT NULL,
+	Completed Boolean NOT NULL,
+	FOREIGN KEY (MemberID) REFERENCES Member
+);
+
+CREATE TABLE Health_Metrics (
+	HealthMetricID SERIAL PRIMARY KEY,
+	MemberID INT NOT NULL,
+	Weight NUMERIC(3),
+	Steps INT,
+	BodyFatPercent NUMERIC(2),
+	Sleep NUMERIC(3),
+	DayUploaded DATE NOT NULL,
+	FOREIGN KEY(MemberID) REFERENCES Member
+);
+
+CREATE TABLE Bills (
+	BillID SERIAL PRIMARY KEY,
+	BillName VARCHAR(20),
+	Paid Boolean NOT NULL,
+	MemberID INT NOT NULL,
+	Amount INT NOT NULL,
+	FOREIGN KEY (MemberID) REFERENCES Member
+);
+
+CREATE TABLE Trainer (
+	TrainerID NUMERIC(2) NOT NULL,
+	TimeSlotID INT NOT NULL,
+	Available Boolean NOT NULL,
+	PRIMARY KEY (TrainerID, TimeSlotID),
+	FOREIGN KEY (TimeSlotID) REFERENCES Time_Slot
+		ON DELETE SET NULL
+);
+
+CREATE TABLE Member_Trainer_Session (
+	MTSessionID SERIAL PRIMARY KEY,
+	TrainerID NUMERIC(2) NOT NULL,
+	MemberID INT NOT NULL,
+	TimeSlotID INT NOT NULL,
+	FOREIGN KEY (TrainerID, TimeSlotID) REFERENCES Trainer ON DELETE CASCADE,
+	FOREIGN KEY (MemberID) REFERENCES Member(MemberID) ON DELETE CASCADE
+);
+
