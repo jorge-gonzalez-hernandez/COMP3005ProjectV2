@@ -19,4 +19,6 @@ BONUS:
 	- Member can view if they have any outstanding fees with viewOutstandingFees(), if they want to pay it, call payBill(billID);
 	- equipment maintenance update for the admin staff to update when the equipment was maintained
 
+You can view the project code under Implementation in Main.java
+
 Youtube: https://youtu.be/qwR-NiDLy28
